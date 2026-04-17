@@ -2,3 +2,5 @@ flask
 google-generativeai
 requests
 python-dotenv
+beautifulsoup4
+gunicorn
