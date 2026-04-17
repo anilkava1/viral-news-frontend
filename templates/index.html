@@ -1,63 +1,111 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral News India</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Ads Styles */
+        #popup-ad, #switch-ad { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; justify-content:center; align-items:center; }
+        #popup-ad { background:rgba(0,0,0,0.85); }
+        #switch-ad { background:#fff; flex-direction:column; }
+        .ad-box { background:#f0f0f0; border:1px dashed #bbb; display:flex; justify-content:center; align-items:center; color:#888; margin:10px 0; }
+        
+        .main-layout { display: flex; max-width: 1400px; margin: 0 auto; gap: 20px; }
+        .sidebar-ad { width: 160px; min-width: 160px; background: #f4f4f4; padding: 10px; height: fit-content; position: sticky; top: 20px; }
+        .main-content { flex: 1; }
+        
+        @media (max-width: 1000px) { .sidebar-ad { display: none; } }
+    </style>
+</head>
+<body>
 
-<div class="news-grid">
-    <div class="column-left">
-        <h3 class="section-title">TRADING UPDATES</h3>
-        {% for item in all_news['trading'] %}
-        <div class="news-card">
-            <img src="{{ item.image }}" alt="News Image">
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.description }}</p>
-            <a href="{{ item.url }}">Read More</a>
-        </div>
-        {% endfor %}
-    </div>
-
-    <div class="column-center">
-        <h3 class="section-title">ALL INDIA LATEST NEWS</h3>
-        {% if all_news['india'] %}
-            <div class="main-featured clickable-news" data-url="{{ all_news['india'][0].url }}">
-                <img src="{{ all_news['india'][0].image }}" style="width:100%; height:420px; object-fit:cover; border-radius:5px;">
-                <h2>{{ all_news['india'][0].title }}</h2>
-                <p>{{ all_news['india'][0].content | safe | truncate(250) }}</p>
-            </div>
-
-            <div class="sub-news-list">
-                {% for item in all_news['india'][1:] %}
-                <div class="sub-news-item clickable-news" data-url="{{ item.url }}">
-                    <div class="sub-text">
-                        <h4 style="font-size:18px;">{{ item.title }}</h4>
-                        <p style="color:#666; font-size:14px;">{{ item.content | safe | truncate(120) }}</p>
-                    </div>
-                    <img src="{{ item.image }}" style="width:150px; height:100px; object-fit:cover; border-radius:4px;">
-                </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div style="text-align:center; padding:100px;"><h3>Loading India News... Please Wait.</h3></div>
-        {% endif %}
-    </div>
-
-    <div class="column-right">
-        <div class="ad-placeholder-right">
-            <p style="font-size:10px; color:#999; text-align:center;">ADVERTISEMENT</p>
-            <div style="width:100%; height:600px; background:#f4f4f4; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; color:#ccc;">300x600 AD</div>
-        </div>
-
-        <h3 class="section-title" style="margin-top:20px;">ENTERTAINMENT</h3>
-        {% for item in all_news['entertainment'][:6] %}
-        <div class="side-news-item clickable-news" data-url="{{ item.url }}">
-            <h4 style="font-size:13px;">{{ item.title }}</h4>
-        </div>
-        {% endfor %}
+<div id="popup-ad">
+    <div style="background:#fff; padding:20px; border-radius:12px; text-align:center; width:320px; position:relative;">
+        <h2 style="margin-top:0;">Breaking Offer</h2>
+        <div class="ad-box" style="height:250px;">[AdSense Square Ad Here]</div>
+        <p id="popup-timer" style="font-weight:bold; color:red;">Closing in 3s...</p>
     </div>
 </div>
 
+<div id="switch-ad">
+    <h1>Preparing Section...</h1>
+    <div class="ad-box" style="width:300px; height:250px;">[Interstitial Ad Content]</div>
+    <p>Loading in <span id="switch-timer" style="font-size:20px; font-weight:bold; color:#e74c3c;">5</span> seconds</p>
+</div>
+
+<div class="main-layout">
+    <aside class="sidebar-ad">
+        <div class="ad-box" style="height:600px;">Vertical Ad</div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1>Viral News India</h1>
+            <nav>
+                <a href="/category/india" class="nav-link">India</a>
+                <a href="/category/trading" class="nav-link">Trading</a>
+                <a href="/category/entertainment" class="nav-link">Entertainment</a>
+                <a href="/category/cricket" class="nav-link">Cricket</a>
+            </nav>
+        </header>
+
+        <section class="news-section">
+            <h2>Latest Updates</h2>
+            <div class="news-grid">
+                {% for cat, news_list in all_news.items() %}
+                    {% for item in news_list[:2] %}
+                    <div class="card">
+                        <img src="{{ item.image }}" alt="" onerror="this.src='https://via.placeholder.com/300x200';">
+                        <h3>{{ item.title }}</h3>
+                        <a href="{{ item.url }}" target="_blank">Read More</a>
+                    </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <aside class="sidebar-ad">
+        <div class="ad-box" style="height:600px;">Vertical Ad</div>
+    </aside>
+</div>
+
 <script>
-    setTimeout(function(){
-        window.location.href = '/update-now';
-    }, 1800000); 
+    // POP-UP LOGIC
+    window.onload = function() {
+        let popup = document.getElementById('popup-ad');
+        let timerText = document.getElementById('popup-timer');
+        let sec = 3;
+        popup.style.display = 'flex';
+        let countdown = setInterval(() => {
+            sec--;
+            timerText.innerText = "Closing in " + sec + "s...";
+            if(sec <= 0) { clearInterval(countdown); popup.style.display = 'none'; }
+        }, 1000);
+    };
+
+    // SECTION SWITCH LOGIC
+    function startSwitchAd(url) {
+        let adDiv = document.getElementById('switch-ad');
+        let timerDisplay = document.getElementById('switch-timer');
+        let wait = 5;
+        adDiv.style.display = 'flex';
+        let timer = setInterval(() => {
+            wait--;
+            timerDisplay.innerText = wait;
+            if(wait <= 0) { clearInterval(timer); window.location.href = url; }
+        }, 1000);
+    }
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.onclick = function(e) {
+            e.preventDefault();
+            startSwitchAd(this.href);
+        };
+    });
 </script>
 
-{% endblock %}
+</body>
+</html>
