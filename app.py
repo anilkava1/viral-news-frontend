@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from news_fetcher import fetch_trending_news
 from datetime import datetime, timedelta
 import os
@@ -15,6 +15,18 @@ news_store = {
 
 last_update_time = None
 
+# ==========================================
+# SEO & GOOGLE SEARCH CONSOLE FIX (NEW)
+# ==========================================
+@app.route('/robots.txt')
+@app.route('/sitemap.xml')
+def static_from_root():
+    # Ye files 'static' folder ke andar se load hongi
+    return send_from_directory(os.path.join(app.root_path, 'static'), request.path[1:])
+
+# ==========================================
+# NEWS LOGIC FUNCTIONS
+# ==========================================
 def update_news():
     global last_update_time
     print("--- Fetching Fresh News from API ---")
@@ -35,6 +47,10 @@ def update_news():
             
     last_update_time = datetime.now()
     print(f"Update completed at: {last_update_time}")
+
+# ==========================================
+# MAIN ROUTES
+# ==========================================
 
 @app.route('/')
 def home():
