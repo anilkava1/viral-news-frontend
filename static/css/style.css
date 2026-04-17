@@ -1,0 +1,62 @@
+/* Global Reset */
+* { box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #fff; color: #333; line-height: 1.5; }
+.container { max-width: 1300px; margin: 0 auto; padding: 0 15px; }
+
+/* 3-Column Grid Logic */
+.news-grid { 
+    display: grid; 
+    grid-template-columns: 260px 1fr 300px; 
+    gap: 25px; 
+    margin-top: 20px;
+}
+
+/* Sidebar Styling */
+.column-left { border-right: 1px solid #eee; padding-right: 10px; }
+.column-right { border-left: 1px solid #eee; padding-left: 15px; }
+
+/* Section Headers */
+.section-title { 
+    font-size: 13px; 
+    font-weight: 900; 
+    color: #ff4757; 
+    border-bottom: 2px solid #333; 
+    padding-bottom: 5px; 
+    margin-bottom: 15px; 
+    text-transform: uppercase;
+}
+
+/* Center News (Main Featured) */
+.main-featured { margin-bottom: 30px; cursor: pointer; }
+.main-featured img { 
+    width: 100%; 
+    max-height: 400px; 
+    object-fit: cover; 
+    border-radius: 4px; 
+}
+.main-featured h2 { font-size: 28px; font-family: serif; margin: 15px 0 10px 0; color: #000; }
+
+/* List Style (Sub-news) */
+.sub-news-item { display: flex; gap: 15px; padding: 15px 0; border-top: 1px solid #eee; cursor: pointer; }
+.sub-news-item img { width: 110px; height: 75px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.sub-news-item h4 { font-size: 16px; margin: 0; color: #222; }
+
+/* Left Sidebar Headlines */
+.side-news-item { border-bottom: 1px solid #f4f4f4; padding-bottom: 10px; margin-bottom: 10px; }
+.side-news-item h4 { font-size: 14px; margin: 5px 0; cursor: pointer; }
+
+/* Ad Boxes */
+.ad-placeholder-right { background: #f9f9f9; border: 1px solid #ddd; min-height: 500px; text-align: center; }
+
+/* RESPONSIVE DESIGN (Mobile Fix) */
+@media (max-width: 1100px) {
+    .news-grid { grid-template-columns: 250px 1fr; } /* Hide Right Sidebar on tablets */
+    .column-right { display: none; }
+}
+
+@media (max-width: 768px) {
+    .news-grid { grid-template-columns: 1fr; } /* Single column for mobile */
+    .column-left { display: none; } /* Hide Left Headlines on small phones */
+    .main-featured img { max-height: 250px; }
+    header h1 { font-size: 24px; }
+}

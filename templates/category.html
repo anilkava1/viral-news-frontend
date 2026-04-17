@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="padding: 20px 0;">
+    <h1 style="text-transform: uppercase; border-bottom: 3px solid #ff4757; display: inline-block;">{{ category_name }} NEWS</h1>
+    <div style="margin-top: 20px;">
+        {% for item in news_list %}
+        <div class="sub-news-item clickable-news" data-url="{{ item.url }}" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <img src="{{ item.image }}" style="width: 150px; height: 100px; object-fit: cover;">
+            <div class="sub-text" style="padding-left: 15px;">
+                <h3 style="margin: 0 0 10px 0;">{{ item.title }}</h3>
+                <p style="font-size: 14px; color: #666;">{{ item.content | safe | truncate(150) }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
