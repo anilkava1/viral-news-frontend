@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /category/
+Disallow: /update-now
+
+Sitemap: https://viral-news-india.onrender.com/sitemap.xml
