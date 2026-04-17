@@ -3,7 +3,7 @@ from news_fetcher import fetch_trending_news
 
 app = Flask(__name__)
 
-# Ye dictionary news ko memory mein store karegi
+# News store karne ke liye dictionary
 news_store = {
     "trading": [],
     "india": [],
@@ -12,10 +12,12 @@ news_store = {
 
 @app.route('/')
 def home():
-    # Agar news_store khali hai, toh pehle update kar lete hain
+    # Agar news khali hai toh update karein
     if not news_store["trading"]:
         update_news()
-    return render_template('index.html', news=news_store)
+    
+    # Yahan 'all_news' naam rakha hai taaki index.html ke saath match kare
+    return render_template('index.html', all_news=news_store)
 
 @app.route('/update-now')
 def update_route():
@@ -23,6 +25,7 @@ def update_route():
         update_news()
         return jsonify({"status": "success", "message": "News updated successfully from Live API"})
     except Exception as e:
+        print(f"Update Route Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 def update_news():
@@ -34,16 +37,17 @@ def update_news():
         
         if raw_data:
             for n in raw_data:
-                # Yahan humne key names ko API ke mutabiq fix kar diya hai
+                # API keys aur fallback (urlToImage) dono handle kiye hain
                 processed.append({
-                    "title": n.get('title', 'No Title Available'),
+                    "title": n.get('title', 'No Title'),
                     "description": n.get('description', 'No description available.'),
-                    "image": n.get('image', n.get('urlToImage', '')), # Dono handle karega
+                    "image": n.get('image', n.get('urlToImage', '')),
                     "url": n.get('url', '#')
                 })
         
         news_store[cat] = processed
+        print(f"Updated {cat}: {len(processed)} items")
 
 if __name__ == '__main__':
-    # Local testing ke liye port 8000, Render ise khud handle karega
+    # Local testing ke liye
     app.run(host='0.0.0.0', port=8000, debug=True)
