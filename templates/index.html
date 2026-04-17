@@ -4,14 +4,14 @@
 <div class="news-grid">
     <div class="column-left">
         <h3 class="section-title">TRADING UPDATES</h3>
-        {% if all_news['trading'] %}
-            {% for item in all_news['trading'][:12] %}
-            <div class="side-news-item clickable-news" data-url="{{ item.url }}">
-                <span style="color:#2ecc71; font-size:10px; font-weight:bold;">MARKET LIVE</span>
-                <h4 style="font-size:13px; margin:5px 0;">{{ item.title }}</h4>
-            </div>
-            {% endfor %}
-        {% endif %}
+        {% for item in all_news['trading'] %}
+        <div class="news-card">
+            <img src="{{ item.image }}" alt="News Image">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+            <a href="{{ item.url }}">Read More</a>
+        </div>
+        {% endfor %}
     </div>
 
     <div class="column-center">
