@@ -1,56 +1,49 @@
-import os
-from flask import Flask, render_template, redirect, url_for
-from dotenv import load_dotenv
+from flask import Flask, render_template, jsonify
 from news_fetcher import fetch_trending_news
-from gemini_engine import rewrite_to_viral
 
-load_dotenv()
 app = Flask(__name__)
 
-# Global storage for news
-news_data = {"india": [], "trading": [], "entertainment": [], "cricket": []}
+# Ye dictionary news ko memory mein store karegi
+news_store = {
+    "trading": [],
+    "india": [],
+    "entertainment": []
+}
 
 @app.route('/')
-def index():
-    return render_template('index.html', all_news=news_data)
-
-@app.route('/category/<name>')
-def category(name):
-    cat_news = news_data.get(name, [])
-    return render_template('category.html', category_name=name, news_list=cat_news)
+def home():
+    # Agar news_store khali hai, toh pehle update kar lete hain
+    if not news_store["trading"]:
+        update_news()
+    return render_template('index.html', news=news_store)
 
 @app.route('/update-now')
-def update():
-    global news_data
-    print("Auto-updating all sections...")
+def update_route():
+    try:
+        update_news()
+        return jsonify({"status": "success", "message": "News updated successfully from Live API"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+def update_news():
+    categories = ["trading", "india", "entertainment"]
     
-    categories = ["india", "trading", "entertainment", "cricket"]
     for cat in categories:
-        raw = fetch_trending_news(cat)
+        raw_data = fetch_trending_news(cat)
         processed = []
-        for i, n in enumerate(raw):
-            # Top 10 news ko AI se rewrite karwana (Speed ke liye)
-            if i < 10:
-                try:
-                    ai_content = rewrite_to_viral(n['title'], n.get('description', ''))
-                    lines = ai_content.split('\n')
-                    title = lines[0].replace('Headline:', '').strip()
-                    body = "<br>".join(lines[1:]).replace('Body:', '').strip()
-                    processed.append({
-                        "title": title or n['title'],
-                        "content": body or n['description'],
-                        "image": n['urlToImage'], "url": n['url']
-                    })
-                except:
-                    processed.append({"title": n['title'], "content": n['description'], "image": n['urlToImage'], "url": n['url']})
-            else:
-                # Baaki news ko seedha add karna list lambi karne ke liye
+        
+        if raw_data:
+            for n in raw_data:
+                # Yahan humne key names ko API ke mutabiq fix kar diya hai
                 processed.append({
-                    "title": n['title'], "content": n['description'],
-                    "image": n['urlToImage'], "url": n['url']
+                    "title": n.get('title', 'No Title Available'),
+                    "description": n.get('description', 'No description available.'),
+                    "image": n.get('image', n.get('urlToImage', '')), # Dono handle karega
+                    "url": n.get('url', '#')
                 })
-        news_data[cat] = processed
-    return redirect(url_for('index'))
+        
+        news_store[cat] = processed
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Local testing ke liye port 8000, Render ise khud handle karega
+    app.run(host='0.0.0.0', port=8000, debug=True)
