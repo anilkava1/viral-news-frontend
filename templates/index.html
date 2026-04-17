@@ -69,9 +69,14 @@
     <p>Please wait <span id="switch-timer" style="font-weight:bold; color:var(--primary-red); font-size:24px;">5</span> seconds</p>
 </div>
 
-<header>
+<header style="padding: 15px 0; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: center; align-items: center;">
     <a href="/">
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Viral News India Logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" 
+             alt="Viral News India" 
+             style="max-width: 90%; height: auto; max-height: 100px; display: block;"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        
+        <span style="display:none; font-size: 24px; font-weight: bold; color: #333;">VIRAL NEWS INDIA</span>
     </a>
 </header>
 
