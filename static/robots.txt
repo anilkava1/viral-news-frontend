@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /static/
 Allow: /category/
-Disallow: /update-now
 
+# Sitemap ka full URL dena zaroori hai
 Sitemap: https://viral-news-india.onrender.com/sitemap.xml
