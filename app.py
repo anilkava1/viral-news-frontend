@@ -1,9 +1,15 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
-from news_fetcher import fetch_trending_news
+import requests
 from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__)
+
+# ==========================================
+# CONFIGURATION (Hugging Face Backend Link)
+# ==========================================
+# Aapka Hugging Face API ka sahi URL
+API_BASE_URL = "https://anilkava-viral-news-india.hf.space/my-api"
 
 # News ko memory mein store karne ke liye
 news_store = {
@@ -16,34 +22,41 @@ news_store = {
 last_update_time = None
 
 # ==========================================
-# SEO & GOOGLE SEARCH CONSOLE FIX (NEW)
+# SEO & GOOGLE SEARCH CONSOLE FIX
 # ==========================================
 @app.route('/robots.txt')
 @app.route('/sitemap.xml')
 def static_from_root():
-    # Ye files 'static' folder ke andar se load hongi
     return send_from_directory(os.path.join(app.root_path, 'static'), request.path[1:])
 
 # ==========================================
-# NEWS LOGIC FUNCTIONS
+# NEWS LOGIC (Fetching from Hugging Face)
 # ==========================================
 def update_news():
     global last_update_time
-    print("--- Fetching Fresh News from API ---")
+    print("--- Fetching Fresh News from Hugging Face API ---")
     
-    # Charo categories jo humein dikhani hain
     categories = ["trading", "india", "entertainment", "cricket"]
     
     for cat in categories:
         try:
-            data = fetch_trending_news(cat)
-            if data:
-                news_store[cat] = data
-                print(f"Success: Got {len(data)} items for {cat}")
+            # Hugging Face Backend ko 'cat' parameter ke saath call kar rahe hain
+            response = requests.get(f"{API_BASE_URL}?cat={cat}", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                # Backend ke JSON structure ke hisaab se 'results' nikal rahe hain
+                news_items = data.get('results', [])
+                if news_items:
+                    news_store[cat] = news_items
+                    print(f"Success: Got {len(news_items)} items for {cat}")
+                else:
+                    print(f"Warning: No items in 'results' for {cat}")
             else:
-                print(f"Warning: No data received for {cat}")
+                print(f"Error: API returned status code {response.status_code} for {cat}")
+                
         except Exception as e:
-            print(f"Error fetching {cat}: {e}")
+            print(f"Error connecting to Hugging Face for {cat}: {e}")
             
     last_update_time = datetime.now()
     print(f"Update completed at: {last_update_time}")
@@ -55,23 +68,17 @@ def update_news():
 @app.route('/')
 def home():
     global last_update_time
-    
-    # AUTO-UPDATE: Agar 30 mins se zyada ho gaye toh khud update karega
     if last_update_time is None or datetime.now() > last_update_time + timedelta(minutes=30):
         update_news()
-        
     return render_template('index.html', all_news=news_store)
 
 @app.route('/category/<name>')
 def category_page(name):
     name = name.lower()
-    
-    # Agar category memory mein nahi hai toh update karein
     if name not in news_store or not news_store[name]:
         update_news()
-        
-    category_news = news_store.get(name, [])
     
+    category_news = news_store.get(name, [])
     if not category_news:
         return "Category not found or no news available", 404
         
@@ -83,13 +90,12 @@ def update_route():
         update_news()
         return jsonify({
             "status": "success", 
-            "message": "News updated successfully",
+            "message": "News updated successfully via Hugging Face",
             "time": last_update_time.strftime("%H:%M:%S")
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    # Render handles the port automatically
     port = int(os.environ.get("PORT", 8000))
     app.run(host='0.0.0.0', port=port)
