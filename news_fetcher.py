@@ -1,25 +1,25 @@
 import requests
 
 def fetch_trending_news(category):
-    # DHYAN DEIN: Yahan ?cat={category} hona chahiye
-    live_api_url = f"https://my-news-api-aa2o.onrender.com/my-api?cat={category}"
+    # Naya Hugging Face API Link (Ismein ?cat=category ka format hai)
+    live_api_url = f"https://anilkava-viral-news-india.hf.space/my-api?cat={category}"
     
-    print(f"--- Fetching news for: {category} ---")
+    print(f"--- Fetching news for: {category} from Hugging Face ---")
     
     try:
-        # 30 seconds timeout diya hai kyunki Gemini thoda time leta hai
+        # Timeout 30 seconds rakha hai taaki Hugging Face aur Gemini mast response dein
         response = requests.get(live_api_url, timeout=30)
         
         if response.status_code == 200:
             data = response.json()
-            # API ke results nikal rahe hain
+            # Backend ke JSON structure ke hisaab se 'results' nikal rahe hain
             results = data.get('results', [])
             print(f"Success! Found {len(results)} items for {category}")
             return results
         else:
-            print(f"API Error: Status {response.status_code}")
+            print(f"API Error: Status {response.status_code} on Hugging Face")
             return []
             
     except Exception as e:
-        print(f"Connection Error: {e}")
+        print(f"Connection Error to Hugging Face: {e}")
         return []
